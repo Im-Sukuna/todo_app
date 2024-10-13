@@ -10,6 +10,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final _controller = TextEditingController();
+
   List toDoList = [
     ['Make Tutorial', false],
     ['Do Exercise', true],
@@ -21,13 +23,31 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void saveNewTask(){
+    setState(() {
+      toDoList.add([_controller.text, false]);
+      _controller.clear();
+    });
+    Navigator.of(context).pop();
+  }
+
   void createNewTask() {
     showDialog(
       context: context,
       builder: (context) {
-        return DialogueBox();
+        return DialogueBox(
+          controller: _controller,
+          onCancel: () => Navigator.of(context).pop(),
+          onSave: saveNewTask,
+        );
       },
     );
+  }
+
+  void deleteTask(int index){
+    setState(() {
+      toDoList.removeAt(index);
+    });
   }
 
   @override
@@ -51,12 +71,13 @@ class _HomePageState extends State<HomePage> {
             taskName: toDoList[index][0],
             taskCompleted: toDoList[index][1],
             onChanged: (value) => checkedBoxChanged(value, index),
+            deleteFunction:(context) =>  deleteTask(index),
           );
         },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: createNewTask,
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }
